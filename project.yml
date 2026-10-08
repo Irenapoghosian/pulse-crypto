@@ -1,0 +1,68 @@
+name: Pulse
+options:
+  bundleIdPrefix: com.irenapoghosyan
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+
+configFiles:
+  Debug: Config/Base.xcconfig
+  Release: Config/Base.xcconfig
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    DEVELOPMENT_TEAM: G6AA4T82BJ
+
+packages:
+  PulseKit:
+    path: Packages/PulseKit
+
+targets:
+  Pulse:
+    type: application
+    platform: iOS
+    sources: [App]
+    dependencies:
+      - package: PulseKit
+        product: Domain
+      - package: PulseKit
+        product: DataLayer
+      - package: PulseKit
+        product: DesignSystem
+      - package: PulseKit
+        product: MarketsFeature
+      - package: PulseKit
+        product: CoinDetailFeature
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleDisplayName: Pulse
+        UILaunchScreen:
+          UIColorName: ""
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        CoinGeckoAPIKey: $(COINGECKO_API_KEY)
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.irenapoghosyan.pulsecrypto
+        TARGETED_DEVICE_FAMILY: "1"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+
+schemes:
+  Pulse:
+    build:
+      targets:
+        Pulse: all
+    # ⌘U on the app scheme runs every module's tests.
+    test:
+      gatherCoverageData: true
+      targets:
+        - package: PulseKit/DomainTests
+        - package: PulseKit/NetworkingTests
+        - package: PulseKit/DesignSystemTests
+        - package: PulseKit/DataLayerTests
+        - package: PulseKit/MarketsFeatureTests
+        - package: PulseKit/CoinDetailFeatureTests
