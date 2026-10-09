@@ -36,6 +36,8 @@ targets:
         product: MarketsFeature
       - package: PulseKit
         product: CoinDetailFeature
+      - package: PulseKit
+        product: PortfolioFeature
     info:
       path: App/Info.plist
       properties:
@@ -66,3 +68,4 @@ schemes:
         - package: PulseKit/DataLayerTests
         - package: PulseKit/MarketsFeatureTests
         - package: PulseKit/CoinDetailFeatureTests
+        - package: PulseKit/PortfolioFeatureTests

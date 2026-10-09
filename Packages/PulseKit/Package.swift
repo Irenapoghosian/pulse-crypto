@@ -4,7 +4,7 @@ import PackageDescription
 /// Pulse is split into small modules with one-way dependencies:
 ///
 ///   Features ──▶ Domain ◀── DataLayer ──▶ Networking
-///      │
+///      │                       (CoinGecko, cache, SwiftData)
 ///      └──────▶ DesignSystem
 ///
 /// Features never import DataLayer or each other; the app target wires everything together.
@@ -18,18 +18,20 @@ let package = Package(
         .library(name: "DesignSystem", targets: ["DesignSystem"]),
         .library(name: "MarketsFeature", targets: ["MarketsFeature"]),
         .library(name: "CoinDetailFeature", targets: ["CoinDetailFeature"]),
+        .library(name: "PortfolioFeature", targets: ["PortfolioFeature"]),
     ],
     targets: [
         // Business rules: entities, repository contracts and use cases. Foundation only.
         .target(name: "Domain"),
         // Generic HTTP: knows nothing about crypto.
         .target(name: "Networking"),
-        // CoinGecko + caching; implements the Domain repository contracts.
+        // CoinGecko, offline cache and SwiftData; implements the Domain repository contracts.
         .target(name: "DataLayer", dependencies: ["Domain", "Networking"]),
         // Colors, formatters and reusable SwiftUI components.
         .target(name: "DesignSystem"),
         .target(name: "MarketsFeature", dependencies: ["Domain", "DesignSystem"]),
         .target(name: "CoinDetailFeature", dependencies: ["Domain", "DesignSystem"]),
+        .target(name: "PortfolioFeature", dependencies: ["Domain", "DesignSystem"]),
 
         // Fakes shared by the feature tests.
         .target(name: "TestSupport", dependencies: ["Domain"], path: "Tests/TestSupport"),
@@ -40,5 +42,6 @@ let package = Package(
         .testTarget(name: "DataLayerTests", dependencies: ["DataLayer", "Domain", "Networking"]),
         .testTarget(name: "MarketsFeatureTests", dependencies: ["MarketsFeature", "TestSupport"]),
         .testTarget(name: "CoinDetailFeatureTests", dependencies: ["CoinDetailFeature", "TestSupport"]),
+        .testTarget(name: "PortfolioFeatureTests", dependencies: ["PortfolioFeature", "TestSupport"]),
     ]
 )

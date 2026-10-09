@@ -1,6 +1,7 @@
 import CoinDetailFeature
 import Domain
 import MarketsFeature
+import PortfolioFeature
 import SwiftUI
 
 struct RootView: View {
@@ -15,15 +16,13 @@ struct RootView: View {
             .tabItem { Label("Markets", systemImage: "chart.line.uptrend.xyaxis") }
 
             NavigationStack {
-                ContentUnavailableView(
-                    "Portfolio is coming next",
-                    systemImage: "briefcase",
-                    description: Text("Track your holdings and their value in the next update.")
-                )
-                .navigationTitle("Portfolio")
+                PortfolioView(model: container.portfolioViewModel)
+                    .withCoinDestination(container)
             }
             .tabItem { Label("Portfolio", systemImage: "briefcase") }
         }
+        // Load holdings at launch so "Add to portfolio" on any coin knows what's already owned.
+        .task { await container.portfolioViewModel.load() }
     }
 }
 
@@ -36,16 +35,40 @@ private extension View {
     }
 }
 
-/// Creates the detail view model once per pushed screen.
+/// The coin detail feature plus an "Add to portfolio" action from the portfolio
+/// feature. The two features never import each other; they meet only here.
 private struct CoinDetailScreen: View {
+    let container: AppContainer
+    let identity: CoinIdentity
     @State private var model: CoinDetailViewModel
+    @State private var editor: HoldingEditorViewModel?
 
     init(container: AppContainer, identity: CoinIdentity) {
-        let coin = container.marketsViewModel.snapshot?.coins.first { $0.id == identity.id }
-        _model = State(initialValue: container.makeCoinDetailViewModel(for: identity, coin: coin))
+        self.container = container
+        self.identity = identity
+        _model = State(initialValue: container.makeCoinDetailViewModel(for: identity))
     }
 
     var body: some View {
         CoinDetailView(model: model)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        editor = container.makeHoldingEditor(for: identity)
+                    } label: {
+                        Label(isOwned ? "Edit holding" : "Add to portfolio",
+                              systemImage: isOwned ? "briefcase.fill" : "plus.circle")
+                    }
+                }
+            }
+            .sheet(item: $editor) { editor in
+                NavigationStack {
+                    HoldingEditorView(model: editor)
+                }
+            }
+    }
+
+    private var isOwned: Bool {
+        container.portfolioViewModel.holding(for: identity.id) != nil
     }
 }

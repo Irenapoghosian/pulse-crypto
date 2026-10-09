@@ -8,6 +8,16 @@ public extension Color {
     /// Brand violet, also the app's accent color.
     static let pulseAccent = Color(red: 0.49, green: 0.36, blue: 1.0)
 
+    /// Distinct colors for chart series (allocation slices), in order.
+    static let pulseChartPalette: [Color] = [
+        .pulseAccent,
+        Color(red: 0.16, green: 0.78, blue: 0.67),
+        Color(red: 1.0, green: 0.62, blue: 0.20),
+        Color(red: 0.25, green: 0.56, blue: 1.0),
+        Color(red: 0.95, green: 0.36, blue: 0.62),
+        Color(red: 0.62, green: 0.62, blue: 0.66),
+    ]
+
     /// Green, red or gray for a percent change.
     static func trend(_ change: Double?) -> Color {
         guard let change, change != 0 else { return .secondary }
