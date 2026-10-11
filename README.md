@@ -18,13 +18,29 @@
 
 ---
 
+<p align="center">
+  <img src="docs/screenshots/hero.png" alt="Pulse on iPhone: the markets list, a Bitcoin price chart, the portfolio with its allocation chart, and the add-coin sheet">
+</p>
+
+## Screenshots
+
+| Markets | Charts | Portfolio | Add coin |
+|:--:|:--:|:--:|:--:|
+| <img src="docs/screenshots/markets.png" width="200"> | <img src="docs/screenshots/detail.png" width="200"> | <img src="docs/screenshots/portfolio.png" width="200"> | <img src="docs/screenshots/add.png" width="200"> |
+
+<sub>Real screenshots with live CoinGecko data.</sub>
+
+## Demo
+
+PASTE_VIDEO_LINK_HERE
+
 ## Features
 
 - **Live markets** — top 100 coins with price, 24h change and a 7-day sparkline, sortable by market cap, gainers, losers or volume.
 - **Smart search** — instant local filtering ranked by relevance, plus debounced remote search for coins outside the top 100.
 - **Interactive charts** — Swift Charts with 1D / 1W / 1M / 1Y ranges and press-and-drag scrubbing.
 - **Works offline** — the last market list is cached and shown with an "offline" notice when the network fails.
-- **Rate-limit friendly** — data younger than a minute is reused (CoinGecko only refreshes once a minute anyway); pull to refresh forces an update.
+- **Rate-limit friendly** — data younger than a minute is reused (CoinGecko only refreshes once a minute anyway); pull to refresh forces an update. The portfolio is priced from the same list, so only coins outside the top 100 need an extra request.
 - **Portfolio** — add the coins you own and see the total balance, 24h profit/loss and an allocation donut chart. Stored on device with SwiftData.
 - **Add from anywhere** — every coin screen has an "Add to portfolio" button that edits the existing amount if you already own the coin.
 - **Locale-aware input** — amounts like `0,5` (Armenian, Russian, German) and `0.5` (English) are both understood.

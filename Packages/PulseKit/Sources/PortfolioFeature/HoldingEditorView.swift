@@ -115,8 +115,8 @@ public struct HoldingEditorView: View {
                 } label: {
                     HStack(spacing: 12) {
                         CoinIcon(url: coin.imageURL, symbol: coin.symbol, size: 28)
-                        Text(coin.name).foregroundStyle(.primary)
-                        Text(coin.symbol).font(.caption).foregroundStyle(.secondary)
+                        Text(coin.name).foregroundStyle(Color.primary)
+                        Text(coin.symbol).font(.caption).foregroundStyle(Color.secondary)
                         Spacer()
                     }
                     .contentShape(Rectangle())
