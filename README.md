@@ -32,7 +32,7 @@
 
 ## Demo
 
-PASTE_VIDEO_LINK_HERE
+https://github.com/user-attachments/assets/12d8255e-3cc3-4933-970e-12e8efe3f436
 
 ## Features
 
