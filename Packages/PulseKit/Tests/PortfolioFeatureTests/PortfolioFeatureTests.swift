@@ -15,17 +15,54 @@ final class PortfolioViewModelTests: XCTestCase {
         XCTAssertTrue(model.isEmpty)
     }
 
-    func testLoadPricesHoldingsWithLiveData() async {
+    func testLiveMarketListPricesHoldingsWithoutExtraRequest() async {
         let holdings = FakeHoldingsRepository([Fixtures.holding(Fixtures.bitcoin, 0.5), Fixtures.holding(Fixtures.ethereum, 2)])
         let market = FakeMarketRepository()
-        market.coinsResult = .success([Fixtures.bitcoin, Fixtures.ethereum])
         let model = PortfolioViewModel(holdings: holdings, market: market)
 
         await model.load()
 
         XCTAssertEqual(model.priceStatus, .live)
         XCTAssertEqual(model.summary.totalValue, 0.5 * 64_000 + 2 * 3_100, accuracy: 0.001)
-        XCTAssertEqual(Set(market.coinsRequests.first ?? []), ["bitcoin", "ethereum"])
+        XCTAssertTrue(market.coinsRequests.isEmpty)
+    }
+
+    func testOnlyCoinsOutsideTheMarketListAreFetched() async {
+        let holdings = FakeHoldingsRepository([Fixtures.holding(Fixtures.bitcoin, 1), Fixtures.holding(Fixtures.ethena, 100)])
+        let market = FakeMarketRepository(coins: [Fixtures.bitcoin, Fixtures.ethereum])
+        market.coinsResult = .success([Fixtures.ethena])
+        let model = PortfolioViewModel(holdings: holdings, market: market)
+
+        await model.load()
+
+        XCTAssertEqual(market.coinsRequests, [["ethena"]])
+        XCTAssertEqual(model.priceStatus, .live)
+        XCTAssertEqual(model.summary.totalValue, 64_000 + 60, accuracy: 0.001)
+    }
+
+    func testSavedMarketListIsRefreshedForHeldCoins() async {
+        let holdings = FakeHoldingsRepository([Fixtures.holding(Fixtures.bitcoin, 1)])
+        let market = FakeMarketRepository(isFromCache: true)
+        market.coinsResult = .success([Fixtures.bitcoin])
+        let model = PortfolioViewModel(holdings: holdings, market: market)
+
+        await model.load()
+
+        XCTAssertEqual(market.coinsRequests, [["bitcoin"]])
+        XCTAssertEqual(model.priceStatus, .live)
+    }
+
+    func testFailedExtraRequestKeepsLiveListPrices() async {
+        let holdings = FakeHoldingsRepository([Fixtures.holding(Fixtures.bitcoin, 1), Fixtures.holding(Fixtures.ethena, 100)])
+        let market = FakeMarketRepository(coins: [Fixtures.bitcoin])
+        market.coinsResult = .failure(MarketDataError.rateLimited)
+        let model = PortfolioViewModel(holdings: holdings, market: market)
+
+        await model.load()
+
+        XCTAssertEqual(model.priceStatus, .live)
+        XCTAssertTrue(model.summary.isIncomplete)
+        XCTAssertEqual(model.summary.totalValue, 64_000, accuracy: 0.001)
     }
 
     func testFallsBackToSavedPricesWhenOffline() async {

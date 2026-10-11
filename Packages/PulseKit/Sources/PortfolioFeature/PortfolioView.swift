@@ -60,7 +60,8 @@ public struct PortfolioView: View {
         List {
             Section {
                 SummaryHeader(summary: model.summary, priceStatus: model.priceStatus)
-                    .listRowInsets(EdgeInsets())
+                    // A small inset keeps the first letter out of the section's rounded-corner clip.
+                    .listRowInsets(EdgeInsets(top: 4, leading: 4, bottom: 8, trailing: 4))
                     .listRowBackground(Color.clear)
             }
 

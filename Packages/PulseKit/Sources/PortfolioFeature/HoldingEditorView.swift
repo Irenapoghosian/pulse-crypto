@@ -119,7 +119,10 @@ public struct HoldingEditorView: View {
                         Text(coin.symbol).font(.caption).foregroundStyle(.secondary)
                         Spacer()
                     }
+                    .contentShape(Rectangle())
                 }
+                // Default Form buttons tint their whole label with the accent color.
+                .buttonStyle(.plain)
             }
         } header: {
             Text("Choose a coin")

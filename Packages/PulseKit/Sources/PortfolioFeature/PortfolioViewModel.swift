@@ -99,23 +99,43 @@ public final class PortfolioViewModel {
         )
     }
 
+    /// Prices the holdings with as few requests as possible.
+    ///
+    /// The top-100 market list is shared with the Markets tab and reused for a
+    /// minute, so most portfolios are priced without any extra request. Only
+    /// coins outside that list are fetched separately. This matters because the
+    /// keyless CoinGecko API rate-limits quickly.
     private func prices(for items: [Holding]) async -> [Coin] {
         guard !items.isEmpty else {
             priceStatus = .live
             return []
         }
-        do {
-            let coins = try await market.coins(ids: items.map(\.id))
+        let ids = Set(items.map(\.id))
+        let snapshot = try? await market.topCoins(forceRefresh: false)
+        let listed = (snapshot?.coins ?? []).filter { ids.contains($0.id) }
+        let listIsLive = snapshot.map { !$0.isFromCache } ?? false
+        let missing = ids.subtracting(listed.map(\.id))
+
+        if listIsLive, missing.isEmpty {
             priceStatus = .live
-            return coins
+            return listed
+        }
+
+        // A live list only lacks the missing coins; a saved list needs everything refreshed.
+        let request = listIsLive ? missing : ids
+        do {
+            let fetched = try await market.coins(ids: request.sorted())
+            let fetchedIDs = Set(fetched.map(\.id))
+            priceStatus = .live
+            return fetched + listed.filter { !fetchedIDs.contains($0.id) }
         } catch {
-            // Fall back to the saved market list (covers the top 100 coins).
-            if let snapshot = try? await market.topCoins(forceRefresh: false), !snapshot.coins.isEmpty {
-                priceStatus = .saved
-                return snapshot.coins
+            guard !listed.isEmpty else {
+                priceStatus = .unavailable
+                return []
             }
-            priceStatus = .unavailable
-            return []
+            // Coins that couldn't be fetched are shown without a value (summary.isIncomplete).
+            priceStatus = listIsLive ? .live : .saved
+            return listed
         }
     }
 }
