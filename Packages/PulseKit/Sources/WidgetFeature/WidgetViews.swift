@@ -45,7 +45,13 @@ public struct CoinWidgetView: View {
             }
             .widgetURL(CoinLink.url(for: item.coin.identity))
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel(WidgetAccessibility.label(for: item.coin))
+            .accessibilityLabel(PulseAccessibility.coinSummary(
+                name: item.coin.name,
+                symbol: item.coin.symbol,
+                price: item.coin.price,
+                change24h: item.coin.priceChange24h,
+                sparkline: item.coin.sparkline7d
+            ))
         } else {
             WidgetUnavailableView()
         }
@@ -128,7 +134,13 @@ struct WatchlistRow: View {
         }
         .frame(maxHeight: .infinity)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(WidgetAccessibility.label(for: item.coin))
+        .accessibilityLabel(PulseAccessibility.coinSummary(
+            name: item.coin.name,
+            symbol: item.coin.symbol,
+            price: item.coin.price,
+            change24h: item.coin.priceChange24h,
+            sparkline: item.coin.sparkline7d
+        ))
     }
 }
 
@@ -189,17 +201,5 @@ struct WidgetUnavailableView: View {
         }
         .multilineTextAlignment(.center)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-}
-
-enum WidgetAccessibility {
-    /// "Bitcoin, $82,906.00, up 1.42%" — one sentence instead of separate pieces.
-    static func label(for coin: Coin) -> String {
-        var parts = [coin.name, PulseFormat.price(coin.price)]
-        if let change = coin.priceChange24h {
-            let magnitude = (abs(change) / 100).formatted(.percent.precision(.fractionLength(2)))
-            parts.append((change >= 0 ? "up " : "down ") + magnitude + " today")
-        }
-        return parts.joined(separator: ", ")
     }
 }

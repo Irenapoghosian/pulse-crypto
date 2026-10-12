@@ -20,9 +20,7 @@ public struct ChangeBadge: View {
     }
 
     private var accessibilityText: String {
-        guard let change else { return "No change data" }
-        let magnitude = (abs(change) / 100).formatted(.percent.precision(.fractionLength(2)))
-        return (change >= 0 ? "Up " : "Down ") + magnitude
+        PulseAccessibility.change(change) ?? "No change data"
     }
 }
 
@@ -31,6 +29,7 @@ public struct CoinIcon: View {
     let url: URL?
     let symbol: String
     let size: CGFloat
+    @Environment(\.colorScheme) private var colorScheme
 
     public init(url: URL?, symbol: String, size: CGFloat = 36) {
         self.url = url
@@ -54,6 +53,13 @@ public struct CoinIcon: View {
         }
         .frame(width: size, height: size)
         .clipShape(Circle())
+        // Some logos are dark on transparent (WhiteBIT, Hyperliquid); a faint
+        // ring keeps them visible on a black background.
+        .overlay {
+            if colorScheme == .dark {
+                Circle().strokeBorder(Color.white.opacity(0.12), lineWidth: 1)
+            }
+        }
         .accessibilityHidden(true)
     }
 }

@@ -45,6 +45,8 @@ https://github.com/user-attachments/assets/12d8255e-3cc3-4933-970e-12e8efe3f436
 - **Add from anywhere** — every coin screen has an "Add to portfolio" button that edits the existing amount if you already own the coin.
 - **Locale-aware input** — amounts like `0,5` (Armenian, Russian, German) and `0.5` (English) are both understood.
 - **Home Screen widgets** — a small widget for one coin and a medium watchlist of three, both configurable from the widget's edit menu. Tapping a coin opens it in the app.
+- **Accessible** — VoiceOver reads every coin as one sentence ("Bitcoin, BTC, rank 1, $83,532.00, up 0.66% today, 7-day trend down"), price charts can be explored as Audio Graphs, rows re-flow at the largest text sizes, and the whole app supports Dark Mode.
+- **Appearance setting** — choose System, Light or Dark in the Settings tab; the choice is saved and applied to every screen, sheet and alert.
 - **Graceful degradation** — if live prices fail, the portfolio falls back to saved prices, and then to amounts only, with a clear notice.
 
 ## Architecture
@@ -97,6 +99,7 @@ flowchart TD
 Each module has its own test target, runnable without a simulator app:
 
 - `DomainTests` — filtering relevance, sorting, change calculations, search use case, portfolio math, locale-aware amount parsing, deep links.
+- `DesignSystemTests` — price, market cap, percent and share formatting, VoiceOver phrases, appearance setting.
 - `NetworkingTests` — URL building, headers, snake_case decoding, 429 / 5xx / offline / cancellation handling.
 - `DataLayerTests` — decoding real CoinGecko JSON (including `null`s), mapping, cache freshness, offline fallback, error translation, file cache round trip, SwiftData upsert/delete (in-memory store).
 - `MarketsFeatureTests` / `CoinDetailFeatureTests` / `PortfolioFeatureTests` / `WidgetFeatureTests` — view model behavior against scriptable fakes (`FakeMarketRepository`, `FakeHoldingsRepository`).

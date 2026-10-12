@@ -1,3 +1,4 @@
+import Accessibility
 import Charts
 import DesignSystem
 import Domain
@@ -93,6 +94,7 @@ public struct CoinDetailView: View {
             }
         }
         .pickerStyle(.segmented)
+        .accessibilityLabel("Chart range")
     }
 
     // MARK: Stats
@@ -179,10 +181,60 @@ struct PriceChart: View {
         .chartXSelection(value: $selectedDate)
         .accessibilityLabel("Price chart")
         .accessibilityValue(accessibilitySummary)
+        // Lets VoiceOver users explore the chart as an Audio Graph.
+        .accessibilityChartDescriptor(self)
     }
 
-    private var accessibilitySummary: String {
-        guard let first = points.first, let last = points.last else { return "" }
-        return "From \(PulseFormat.price(first.price)) to \(PulseFormat.price(last.price))"
+    /// "From $81,200.00 to $83,532.00, up 2.87%, low $80,950.00, high $86,410.00"
+    var accessibilitySummary: String {
+        guard let first = points.first, let last = points.last else { return "No data" }
+        var parts = ["From \(PulseFormat.price(first.price)) to \(PulseFormat.price(last.price))"]
+        if let change = PulseAccessibility.change(MarketRules.change(over: points)) {
+            parts.append(change)
+        }
+        let prices = points.map(\.price)
+        if let low = prices.min(), let high = prices.max() {
+            parts.append("low \(PulseFormat.price(low)), high \(PulseFormat.price(high))")
+        }
+        return parts.joined(separator: ", ")
+    }
+}
+
+extension PriceChart: AXChartDescriptorRepresentable {
+    func makeChartDescriptor() -> AXChartDescriptor {
+        let times = points.map { $0.date.timeIntervalSince1970 }
+        let prices = points.map(\.price)
+        let now = Date().timeIntervalSince1970
+
+        let xAxis = AXNumericDataAxisDescriptor(
+            title: "Date",
+            range: (times.min() ?? now)...(times.max() ?? now),
+            gridlinePositions: []
+        ) { value in
+            Date(timeIntervalSince1970: value).formatted(date: .abbreviated, time: .shortened)
+        }
+
+        let yAxis = AXNumericDataAxisDescriptor(
+            title: "Price",
+            range: (prices.min() ?? 0)...(prices.max() ?? 0),
+            gridlinePositions: []
+        ) { value in
+            PulseFormat.price(value)
+        }
+
+        let series = AXDataSeriesDescriptor(
+            name: "Price",
+            isContinuous: true,
+            dataPoints: points.map { AXDataPoint(x: $0.date.timeIntervalSince1970, y: $0.price) }
+        )
+
+        return AXChartDescriptor(
+            title: "Price chart",
+            summary: accessibilitySummary,
+            xAxis: xAxis,
+            yAxis: yAxis,
+            additionalAxes: [],
+            series: [series]
+        )
     }
 }

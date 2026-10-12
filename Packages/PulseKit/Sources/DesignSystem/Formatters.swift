@@ -44,6 +44,15 @@ public enum PulseFormat {
         return (value >= 0 ? "+" : "−") + magnitude
     }
 
+    /// Portfolio shares: `98.8%`, `0.6%`, and `<0.1%` for slivers that would otherwise read as `0%`.
+    public static func share(_ fraction: Double, locale: Locale = .current) -> String {
+        let style = FloatingPointFormatStyle<Double>.Percent(locale: locale).precision(.fractionLength(0...1))
+        if fraction > 0, fraction < 0.001 {
+            return "<" + 0.001.formatted(style)
+        }
+        return fraction.formatted(style)
+    }
+
     /// Coin amounts: up to 8 decimals, no trailing zeros.
     public static func amount(_ value: Double, locale: Locale = .current) -> String {
         value.formatted(.number.locale(locale).precision(.fractionLength(0...8)))

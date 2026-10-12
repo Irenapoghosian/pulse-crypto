@@ -95,49 +95,77 @@ public struct MarketsView: View {
             } label: {
                 Label("Sort", systemImage: "arrow.up.arrow.down")
             }
+            .accessibilityValue(model.sort.title)
         }
     }
 }
 
 struct CoinRow: View {
     let coin: Coin
+    @Environment(\.dynamicTypeSize) private var typeSize
 
     var body: some View {
-        HStack(spacing: 12) {
-            CoinIcon(url: coin.imageURL, symbol: coin.symbol)
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(coin.name)
-                    .font(.body.weight(.semibold))
-                    .lineLimit(1)
-                HStack(spacing: 6) {
-                    if let rank = coin.marketCapRank {
-                        Text("\(rank)")
-                            .font(.caption2.weight(.semibold))
-                            .padding(.horizontal, 5)
-                            .padding(.vertical, 1)
-                            .background(.quaternary, in: RoundedRectangle(cornerRadius: 4))
+        Group {
+            if typeSize.isAccessibilitySize {
+                // Very large text: stack the pieces and drop the sparkline instead of truncating.
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(spacing: 12) {
+                        CoinIcon(url: coin.imageURL, symbol: coin.symbol)
+                        name
                     }
-                    Text(coin.symbol)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    Text(PulseFormat.price(coin.price))
+                        .font(.pulseNumber(.body, weight: .semibold))
+                    ChangeBadge(coin.priceChange24h)
+                }
+            } else {
+                HStack(spacing: 12) {
+                    CoinIcon(url: coin.imageURL, symbol: coin.symbol)
+                    name
+
+                    Spacer(minLength: 8)
+
+                    Sparkline(coin.sparkline7d)
+                        .frame(width: 56, height: 24)
+
+                    VStack(alignment: .trailing, spacing: 4) {
+                        Text(PulseFormat.price(coin.price))
+                            .font(.pulseNumber(.subheadline, weight: .semibold))
+                        ChangeBadge(coin.priceChange24h)
+                    }
+                    .frame(minWidth: 92, alignment: .trailing)
                 }
             }
-
-            Spacer(minLength: 8)
-
-            Sparkline(coin.sparkline7d)
-                .frame(width: 56, height: 24)
-
-            VStack(alignment: .trailing, spacing: 4) {
-                Text(PulseFormat.price(coin.price))
-                    .font(.pulseNumber(.subheadline, weight: .semibold))
-                ChangeBadge(coin.priceChange24h)
-            }
-            .frame(minWidth: 92, alignment: .trailing)
         }
         .padding(.vertical, 4)
-        .accessibilityElement(children: .combine)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(PulseAccessibility.coinSummary(
+            name: coin.name,
+            symbol: coin.symbol,
+            price: coin.price,
+            change24h: coin.priceChange24h,
+            rank: coin.marketCapRank,
+            sparkline: coin.sparkline7d
+        ))
+    }
+
+    private var name: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(coin.name)
+                .font(.body.weight(.semibold))
+                .lineLimit(typeSize.isAccessibilitySize ? 2 : 1)
+            HStack(spacing: 6) {
+                if let rank = coin.marketCapRank {
+                    Text("\(rank)")
+                        .font(.caption2.weight(.semibold))
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 1)
+                        .background(.quaternary, in: RoundedRectangle(cornerRadius: 4))
+                }
+                Text(coin.symbol)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
     }
 }
 
@@ -158,5 +186,9 @@ struct SearchResultRow: View {
                     .foregroundStyle(.secondary)
             }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel([result.name, result.symbol, result.marketCapRank.map { "rank \($0)" }]
+            .compactMap { $0 }
+            .joined(separator: ", "))
     }
 }

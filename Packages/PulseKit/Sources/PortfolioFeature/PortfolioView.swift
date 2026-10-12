@@ -181,7 +181,7 @@ struct AllocationChart: View {
                         Text(slice.label)
                             .font(.subheadline.weight(.medium))
                         Spacer()
-                        Text(slice.share.formatted(.percent.precision(.fractionLength(0...1))))
+                        Text(PulseFormat.share(slice.share))
                             .font(.pulseNumber(.subheadline))
                             .foregroundStyle(.secondary)
                     }
@@ -199,28 +199,61 @@ struct AllocationChart: View {
 
 struct PositionRow: View {
     let position: PortfolioPosition
+    @Environment(\.dynamicTypeSize) private var typeSize
+
+    private var coin: CoinIdentity { position.holding.coin }
+    private var valueText: String { position.value.map { PulseFormat.price($0) } ?? "—" }
 
     var body: some View {
-        HStack(spacing: 12) {
-            CoinIcon(url: position.coin?.imageURL ?? position.holding.coin.imageURL, symbol: position.holding.coin.symbol)
+        Group {
+            if typeSize.isAccessibilitySize {
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(spacing: 12) {
+                        CoinIcon(url: position.coin?.imageURL ?? coin.imageURL, symbol: coin.symbol)
+                        name
+                    }
+                    Text(valueText)
+                        .font(.pulseNumber(.body, weight: .semibold))
+                    ChangeBadge(position.coin?.priceChange24h)
+                }
+            } else {
+                HStack(spacing: 12) {
+                    CoinIcon(url: position.coin?.imageURL ?? coin.imageURL, symbol: coin.symbol)
+                    name
 
-            VStack(alignment: .leading, spacing: 2) {
-                Text(position.holding.coin.name)
-                    .font(.body.weight(.semibold))
-                    .lineLimit(1)
-                Text("\(PulseFormat.amount(position.holding.amount)) \(position.holding.coin.symbol)")
-                    .font(.pulseNumber(.caption))
-                    .foregroundStyle(.secondary)
-            }
+                    Spacer(minLength: 8)
 
-            Spacer(minLength: 8)
-
-            VStack(alignment: .trailing, spacing: 4) {
-                Text(position.value.map { PulseFormat.price($0) } ?? "—")
-                    .font(.pulseNumber(.subheadline, weight: .semibold))
-                ChangeBadge(position.coin?.priceChange24h)
+                    VStack(alignment: .trailing, spacing: 4) {
+                        Text(valueText)
+                            .font(.pulseNumber(.subheadline, weight: .semibold))
+                        ChangeBadge(position.coin?.priceChange24h)
+                    }
+                }
             }
         }
         .padding(.vertical, 2)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilityText)
+    }
+
+    private var name: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(coin.name)
+                .font(.body.weight(.semibold))
+                .lineLimit(typeSize.isAccessibilitySize ? 2 : 1)
+            Text("\(PulseFormat.amount(position.holding.amount)) \(coin.symbol)")
+                .font(.pulseNumber(.caption))
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    /// "Bitcoin, 5 BTC, worth $417,660.00, up 0.66% today"
+    private var accessibilityText: String {
+        var parts = [coin.name, "\(PulseFormat.amount(position.holding.amount)) \(coin.symbol)"]
+        parts.append(position.value.map { "worth " + PulseFormat.price($0) } ?? "value unavailable")
+        if let change = PulseAccessibility.change(position.coin?.priceChange24h) {
+            parts.append(change + " today")
+        }
+        return parts.joined(separator: ", ")
     }
 }

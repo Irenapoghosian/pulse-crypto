@@ -24,6 +24,12 @@ struct RootView: View {
             }
             .tabItem { Label("Portfolio", systemImage: "briefcase") }
             .tag(RootTab.portfolio)
+
+            NavigationStack {
+                SettingsView()
+            }
+            .tabItem { Label("Settings", systemImage: "gearshape") }
+            .tag(RootTab.settings)
         }
         // Load holdings at launch so "Add to portfolio" on any coin knows what's already owned.
         .task { await container.portfolioViewModel.load() }
@@ -39,6 +45,7 @@ struct RootView: View {
 enum RootTab: Hashable {
     case markets
     case portfolio
+    case settings
 }
 
 private extension View {
