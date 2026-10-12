@@ -7,7 +7,7 @@ import PackageDescription
 ///      │                       (CoinGecko, cache, SwiftData)
 ///      └──────▶ DesignSystem
 ///
-/// Features never import DataLayer or each other; the app target wires everything together.
+/// Features never import DataLayer or each other; the app and widget targets wire everything together.
 let package = Package(
     name: "PulseKit",
     platforms: [.iOS(.v17)],
@@ -19,6 +19,7 @@ let package = Package(
         .library(name: "MarketsFeature", targets: ["MarketsFeature"]),
         .library(name: "CoinDetailFeature", targets: ["CoinDetailFeature"]),
         .library(name: "PortfolioFeature", targets: ["PortfolioFeature"]),
+        .library(name: "WidgetFeature", targets: ["WidgetFeature"]),
     ],
     targets: [
         // Business rules: entities, repository contracts and use cases. Foundation only.
@@ -32,6 +33,8 @@ let package = Package(
         .target(name: "MarketsFeature", dependencies: ["Domain", "DesignSystem"]),
         .target(name: "CoinDetailFeature", dependencies: ["Domain", "DesignSystem"]),
         .target(name: "PortfolioFeature", dependencies: ["Domain", "DesignSystem"]),
+        // Home Screen widget entries and views; the widget extension only wires it up.
+        .target(name: "WidgetFeature", dependencies: ["Domain", "DesignSystem"]),
 
         // Fakes shared by the feature tests.
         .target(name: "TestSupport", dependencies: ["Domain"], path: "Tests/TestSupport"),
@@ -43,5 +46,6 @@ let package = Package(
         .testTarget(name: "MarketsFeatureTests", dependencies: ["MarketsFeature", "TestSupport"]),
         .testTarget(name: "CoinDetailFeatureTests", dependencies: ["CoinDetailFeature", "TestSupport"]),
         .testTarget(name: "PortfolioFeatureTests", dependencies: ["PortfolioFeature", "TestSupport"]),
+        .testTarget(name: "WidgetFeatureTests", dependencies: ["WidgetFeature", "TestSupport"]),
     ]
 )

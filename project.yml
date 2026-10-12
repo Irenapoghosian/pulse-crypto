@@ -24,8 +24,9 @@ targets:
   Pulse:
     type: application
     platform: iOS
-    sources: [App]
+    sources: [App, Shared]
     dependencies:
+      - target: PulseWidget
       - package: PulseKit
         product: Domain
       - package: PulseKit
@@ -46,12 +47,45 @@ targets:
           UIColorName: ""
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         CoinGeckoAPIKey: $(COINGECKO_API_KEY)
+        # Widgets open coins with pulse://coin/<id>.
+        CFBundleURLTypes:
+          - CFBundleURLName: com.irenapoghosyan.pulsecrypto
+            CFBundleURLSchemes: [pulse]
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.irenapoghosyan.pulsecrypto
         TARGETED_DEVICE_FAMILY: "1"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+
+  # Home Screen widgets. Reuses the app's modules; only the wiring lives here.
+  PulseWidget:
+    type: app-extension
+    platform: iOS
+    sources: [Widget, Shared]
+    dependencies:
+      - package: PulseKit
+        product: Domain
+      - package: PulseKit
+        product: DataLayer
+      - package: PulseKit
+        product: DesignSystem
+      - package: PulseKit
+        product: WidgetFeature
+      - sdk: WidgetKit.framework
+      - sdk: SwiftUI.framework
+    info:
+      path: Widget/Info.plist
+      properties:
+        CFBundleDisplayName: Pulse
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+        CoinGeckoAPIKey: $(COINGECKO_API_KEY)
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.irenapoghosyan.pulsecrypto.widget
+        TARGETED_DEVICE_FAMILY: "1"
+        SKIP_INSTALL: YES
 
 schemes:
   Pulse:
@@ -69,3 +103,20 @@ schemes:
         - package: PulseKit/MarketsFeatureTests
         - package: PulseKit/CoinDetailFeatureTests
         - package: PulseKit/PortfolioFeatureTests
+        - package: PulseKit/WidgetFeatureTests
+
+  # Running this scheme puts a widget straight onto the simulator's Home Screen.
+  # Change _XCWidgetKind to WatchlistWidget (and the family to systemMedium) to see the other one.
+  PulseWidget:
+    build:
+      targets:
+        PulseWidget: all
+        Pulse: all
+    run:
+      config: Debug
+      askForAppToLaunch: true
+      launchAutomaticallySubstyle: "2"
+      environmentVariables:
+        _XCWidgetKind: CoinWidget
+        _XCWidgetFamily: systemSmall
+        _XCWidgetDefaultView: timeline

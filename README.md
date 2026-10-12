@@ -44,11 +44,12 @@ https://github.com/user-attachments/assets/12d8255e-3cc3-4933-970e-12e8efe3f436
 - **Portfolio** — add the coins you own and see the total balance, 24h profit/loss and an allocation donut chart. Stored on device with SwiftData.
 - **Add from anywhere** — every coin screen has an "Add to portfolio" button that edits the existing amount if you already own the coin.
 - **Locale-aware input** — amounts like `0,5` (Armenian, Russian, German) and `0.5` (English) are both understood.
+- **Home Screen widgets** — a small widget for one coin and a medium watchlist of three, both configurable from the widget's edit menu. Tapping a coin opens it in the app.
 - **Graceful degradation** — if live prices fail, the portfolio falls back to saved prices, and then to amounts only, with a clear notice.
 
 ## Architecture
 
-The app target is a thin shell. All code lives in a local Swift package, **PulseKit**, split into modules with one-way dependencies:
+The app and widget targets are thin shells. All code lives in a local Swift package, **PulseKit**, split into modules with one-way dependencies:
 
 ```mermaid
 flowchart TD
@@ -56,6 +57,10 @@ flowchart TD
     App --> Detail[CoinDetailFeature]
     App --> Portfolio[PortfolioFeature]
     App --> DataLayer
+    Widget["Widget extension"] --> WidgetFeature
+    Widget --> DataLayer
+    WidgetFeature --> Domain
+    WidgetFeature --> DS
     Portfolio --> Domain
     Portfolio --> DS
     Markets --> Domain
@@ -75,11 +80,13 @@ flowchart TD
 | `MarketsFeature` | Market list, search and sorting (`MarketsViewModel` + views). | Domain, DesignSystem |
 | `CoinDetailFeature` | Price chart and stats (`CoinDetailViewModel` + views). | Domain, DesignSystem |
 | `PortfolioFeature` | Balance, allocation chart, holdings list and the add/edit sheet. | Domain, DesignSystem |
+| `WidgetFeature` | Widget entries (`MarketEntryLoader`) and the small and medium widget views. | Domain, DesignSystem |
 
 ### Key decisions
 
 - **Dependency rule** — features depend on `Domain` protocols, never on `DataLayer`. Only the app's `AppContainer` knows the concrete types, so every feature can be tested with a fake repository.
 - **Features don't import each other** — rows push a `CoinIdentity` and the app decides which screen that opens. The "Add to portfolio" button on the coin screen is attached by the app, so `CoinDetailFeature` and `PortfolioFeature` stay independent.
+- **The widget is just another client** — the extension target only wires `DataLayer` into `WidgetFeature`, so it shares the app's API client, cache, error handling and price rules instead of duplicating them. A `pulse://coin/<id>` link (`CoinLink` in `Domain`) brings taps back into the app.
 - **Business math is pure** — `PortfolioCalculator` turns holdings + prices into totals, 24h change and allocation with no I/O, so every edge case (missing prices, tiny holdings grouped into "Other") is a fast unit test.
 - **Constructor injection, no singletons** — view models receive their dependencies through `init`.
 - **Errors are translated at the boundary** — HTTP status codes stay in `Networking`/`DataLayer`; features only see `MarketDataError` (`offline`, `rateLimited`, `unavailable`) and turn it into a human message.
@@ -89,10 +96,10 @@ flowchart TD
 
 Each module has its own test target, runnable without a simulator app:
 
-- `DomainTests` — filtering relevance, sorting, change calculations, search use case, portfolio math, locale-aware amount parsing.
+- `DomainTests` — filtering relevance, sorting, change calculations, search use case, portfolio math, locale-aware amount parsing, deep links.
 - `NetworkingTests` — URL building, headers, snake_case decoding, 429 / 5xx / offline / cancellation handling.
 - `DataLayerTests` — decoding real CoinGecko JSON (including `null`s), mapping, cache freshness, offline fallback, error translation, file cache round trip, SwiftData upsert/delete (in-memory store).
-- `MarketsFeatureTests` / `CoinDetailFeatureTests` / `PortfolioFeatureTests` — view model behavior against scriptable fakes (`FakeMarketRepository`, `FakeHoldingsRepository`).
+- `MarketsFeatureTests` / `CoinDetailFeatureTests` / `PortfolioFeatureTests` / `WidgetFeatureTests` — view model behavior against scriptable fakes (`FakeMarketRepository`, `FakeHoldingsRepository`).
 
 In Xcode, **⌘U** on the `Pulse` scheme runs every module's tests with code coverage.
 
@@ -125,7 +132,7 @@ Market data provided by [CoinGecko](https://www.coingecko.com).
 - [x] Markets list with search, sorting and offline cache
 - [x] Coin detail with interactive charts
 - [x] Portfolio with SwiftData persistence
-- [ ] Widgets
+- [x] Home Screen widgets
 
 ## License
 

@@ -6,24 +6,39 @@ import SwiftUI
 
 struct RootView: View {
     let container: AppContainer
+    @State private var selectedTab = RootTab.markets
+    @State private var marketsPath: [CoinIdentity] = []
 
     var body: some View {
-        TabView {
-            NavigationStack {
+        TabView(selection: $selectedTab) {
+            NavigationStack(path: $marketsPath) {
                 MarketsView(model: container.marketsViewModel)
                     .withCoinDestination(container)
             }
             .tabItem { Label("Markets", systemImage: "chart.line.uptrend.xyaxis") }
+            .tag(RootTab.markets)
 
             NavigationStack {
                 PortfolioView(model: container.portfolioViewModel)
                     .withCoinDestination(container)
             }
             .tabItem { Label("Portfolio", systemImage: "briefcase") }
+            .tag(RootTab.portfolio)
         }
         // Load holdings at launch so "Add to portfolio" on any coin knows what's already owned.
         .task { await container.portfolioViewModel.load() }
+        // Widgets open `pulse://coin/<id>`: show that coin on the Markets tab.
+        .onOpenURL { url in
+            guard let identity = CoinLink.identity(from: url) else { return }
+            selectedTab = .markets
+            marketsPath = [identity]
+        }
     }
+}
+
+enum RootTab: Hashable {
+    case markets
+    case portfolio
 }
 
 private extension View {
