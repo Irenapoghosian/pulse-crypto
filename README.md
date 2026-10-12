@@ -13,6 +13,8 @@
   <img alt="Swift" src="https://img.shields.io/badge/Swift-5.10-orange">
   <img alt="SwiftUI" src="https://img.shields.io/badge/UI-SwiftUI-blue">
   <img alt="CI" src="https://github.com/Irenapoghosian/pulse-crypto/actions/workflows/ci.yml/badge.svg">
+  <img alt="Coverage" src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Irenapoghosian/pulse-crypto/badges/coverage.json">
+  <img alt="SwiftLint" src="https://img.shields.io/badge/lint-SwiftLint-blue">
   <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-lightgrey">
 </p>
 
@@ -106,7 +108,7 @@ Each module has its own test target, runnable without a simulator app:
 
 In Xcode, **⌘U** on the `Pulse` scheme runs every module's tests with code coverage.
 
-CI runs every module's tests and builds the app on each push.
+CI runs SwiftLint, every module's tests and an app build on each push. The job summary lists coverage per module; the badge shows logic coverage — SwiftUI view files are left out because they're checked with previews, not unit tests (`scripts/coverage.py`).
 
 ## Getting started
 

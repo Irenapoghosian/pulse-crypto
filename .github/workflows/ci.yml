@@ -10,10 +10,21 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  lint:
+    name: SwiftLint
+    runs-on: ubuntu-latest
+    container: ghcr.io/realm/swiftlint:0.57.1
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint
+        run: swiftlint lint --reporter github-actions-logging
+
   test:
     name: Test modules & build app
     runs-on: macos-15
     timeout-minutes: 30
+    permissions:
+      contents: write   # only used to publish the coverage badge to the `badges` branch
 
     steps:
       - uses: actions/checkout@v4
@@ -31,7 +42,36 @@ jobs:
           xcodebuild test \
             -scheme PulseKit-Package \
             -destination "id=${{ steps.sim.outputs.udid }}" \
+            -enableCodeCoverage YES \
+            -resultBundlePath "$RUNNER_TEMP/PulseKit.xcresult" \
             -quiet
+
+      - name: Coverage report
+        run: |
+          python3 scripts/coverage.py "$RUNNER_TEMP/PulseKit.xcresult" \
+            --badge "$RUNNER_TEMP/coverage.json" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publish coverage badge
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          REMOTE="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          cd "$RUNNER_TEMP"
+          if ! git clone --quiet --depth 1 --branch badges "$REMOTE" badges; then
+            git init --quiet badges
+            git -C badges checkout --quiet -b badges
+            git -C badges remote add origin "$REMOTE"
+          fi
+          cp coverage.json badges/coverage.json
+          cd badges
+          git config user.name "github-actions[bot]"
+          git config user.email "41898099+github-actions[bot]@users.noreply.github.com"
+          git add coverage.json
+          if ! git diff --cached --quiet; then
+            git commit --quiet -m "Update coverage badge"
+            git push --quiet origin badges
+          fi
 
       - name: Install XcodeGen
         run: brew install xcodegen

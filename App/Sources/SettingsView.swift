@@ -40,10 +40,8 @@ struct SettingsView: View {
         .navigationTitle("Settings")
     }
 
-    // swiftlint:disable force_unwrapping
     private static let coinGeckoURL = URL(string: "https://www.coingecko.com")!
     private static let sourceURL = URL(string: "https://github.com/Irenapoghosian/pulse-crypto")!
-    // swiftlint:enable force_unwrapping
 
     /// "1.0.0 (1)"
     private static var version: String {
