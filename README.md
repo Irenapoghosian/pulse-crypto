@@ -32,6 +32,16 @@
 
 <sub>Real screenshots with live CoinGecko data.</sub>
 
+## What's new in 1.1
+
+<p align="center">
+  <img src="docs/screenshots/whats-new.png" alt="Pulse 1.1: a Home Screen widget, and the markets list, Bitcoin chart and portfolio in Dark Mode">
+</p>
+
+| Widget | Dark Mode | Charts | Settings |
+|:--:|:--:|:--:|:--:|
+| <img src="docs/screenshots/widget.png" width="200"> | <img src="docs/screenshots/dark-markets.png" width="200"> | <img src="docs/screenshots/dark-detail.png" width="200"> | <img src="docs/screenshots/settings.png" width="200"> |
+
 ## Demo
 
 https://github.com/user-attachments/assets/12d8255e-3cc3-4933-970e-12e8efe3f436
