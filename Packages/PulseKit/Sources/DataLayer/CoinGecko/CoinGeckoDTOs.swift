@@ -39,21 +39,22 @@ struct CoinMarketDTO: Codable, Equatable, Sendable {
 }
 
 struct SearchResponseDTO: Decodable, Sendable {
-    struct CoinDTO: Decodable, Sendable {
-        let id: String
-        let name: String
-        let symbol: String
-        let marketCapRank: Int?
-        let thumb: String?
-        let large: String?
+    let coins: [SearchCoinDTO]
+}
 
-        enum CodingKeys: String, CodingKey {
-            case id, name, symbol, thumb, large
-            case marketCapRank = "market_cap_rank"
-        }
+/// One coin in a `/search` response.
+struct SearchCoinDTO: Decodable, Sendable {
+    let id: String
+    let name: String
+    let symbol: String
+    let marketCapRank: Int?
+    let thumb: String?
+    let large: String?
+
+    enum CodingKeys: String, CodingKey {
+        case id, name, symbol, thumb, large
+        case marketCapRank = "market_cap_rank"
     }
-
-    let coins: [CoinDTO]
 }
 
 struct MarketChartDTO: Decodable, Sendable {
@@ -86,7 +87,7 @@ extension CoinMarketDTO {
     }
 }
 
-extension SearchResponseDTO.CoinDTO {
+extension SearchCoinDTO {
     func toDomain() -> CoinSearchResult {
         CoinSearchResult(
             id: id,

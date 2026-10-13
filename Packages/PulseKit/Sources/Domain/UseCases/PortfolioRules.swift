@@ -10,7 +10,7 @@ public enum PortfolioCalculator {
             .map { PortfolioPosition(holding: $0, coin: coinsByID[$0.id]) }
             .sorted { lhs, rhs in
                 switch (lhs.value, rhs.value) {
-                case let (l?, r?): return l > r
+                case let (leftValue?, rightValue?): return leftValue > rightValue
                 case (.some, nil): return true
                 case (nil, .some): return false
                 case (nil, nil): return lhs.holding.coin.name < rhs.holding.coin.name
