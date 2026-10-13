@@ -1,9 +1,11 @@
 import DesignSystem
+import Localization
 import SwiftUI
 
-/// Appearance, data source and app info.
+/// Appearance, language, data source and app info.
 struct SettingsView: View {
     @AppStorage(AppearancePreference.storageKey) private var appearance: AppearancePreference = .system
+    @AppStorage(AppLanguage.storageKey) private var language: AppLanguage = .system
 
     var body: some View {
         Form {
@@ -22,9 +24,23 @@ struct SettingsView: View {
                 Text("System follows your iPhone's Light or Dark setting. Home Screen widgets always follow the system.")
             }
 
+            Section {
+                Picker("Language", selection: $language) {
+                    ForEach(AppLanguage.allCases) { option in
+                        Text(option.title).tag(option)
+                    }
+                }
+                .pickerStyle(.inline)
+                .labelsHidden()
+            } header: {
+                Text("Language")
+            } footer: {
+                Text("Home Screen widgets follow your iPhone's language.")
+            }
+
             Section("Market data") {
                 LabeledContent("Source", value: "CoinGecko")
-                LabeledContent("API access", value: AppConfig.coinGeckoAPIKey == nil ? "Keyless" : "Demo key")
+                LabeledContent("API access", value: AppConfig.coinGeckoAPIKey == nil ? Localized.string("Keyless") : Localized.string("Demo key"))
                 Link(destination: Self.coinGeckoURL) {
                     Label("Visit CoinGecko", systemImage: "arrow.up.right.square")
                 }
@@ -37,7 +53,7 @@ struct SettingsView: View {
                 }
             }
         }
-        .navigationTitle("Settings")
+        .navigationTitle(Localized.string("Settings"))
     }
 
     private static let coinGeckoURL = URL(string: "https://www.coingecko.com")!

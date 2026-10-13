@@ -1,6 +1,7 @@
 import Charts
 import DesignSystem
 import Domain
+import Localization
 import SwiftUI
 
 /// The portfolio tab. Rows push a `CoinIdentity`; the app decides what that opens.
@@ -13,13 +14,13 @@ public struct PortfolioView: View {
 
     public var body: some View {
         content
-            .navigationTitle("Portfolio")
+            .navigationTitle(Localized.string("Portfolio"))
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         model.startAdding()
                     } label: {
-                        Label("Add coin", systemImage: "plus")
+                        Label(Localized.string("Add coin"), systemImage: "plus")
                     }
                 }
             }
@@ -39,7 +40,7 @@ public struct PortfolioView: View {
             ProgressView()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         case .failed(let message):
-            ErrorStateView(title: "Something went wrong", message: message) {
+            ErrorStateView(title: Localized.string("Something went wrong"), message: message) {
                 Task { await model.load() }
             }
         case .loaded where model.isEmpty:
@@ -81,18 +82,18 @@ public struct PortfolioView: View {
                         Button(role: .destructive) {
                             Task { await model.delete(position.holding) }
                         } label: {
-                            Label("Delete", systemImage: "trash")
+                            Label(Localized.string("Delete"), systemImage: "trash")
                         }
                         Button {
                             model.startEditing(position.holding)
                         } label: {
-                            Label("Edit", systemImage: "pencil")
+                            Label(Localized.string("Edit"), systemImage: "pencil")
                         }
                         .tint(.pulseAccent)
                     }
                     .contextMenu {
-                        Button("Edit amount", systemImage: "pencil") { model.startEditing(position.holding) }
-                        Button("Remove", systemImage: "trash", role: .destructive) {
+                        Button(Localized.string("Edit amount"), systemImage: "pencil") { model.startEditing(position.holding) }
+                        Button(Localized.string("Remove"), systemImage: "trash", role: .destructive) {
                             Task { await model.delete(position.holding) }
                         }
                     }
@@ -146,11 +147,11 @@ struct SummaryHeader: View {
     private var notice: String? {
         switch priceStatus {
         case .live:
-            return summary.isIncomplete ? "Some prices couldn't be loaded." : nil
+            return summary.isIncomplete ? Localized.string("Some prices couldn't be loaded.") : nil
         case .saved:
-            return "Offline · using saved prices"
+            return Localized.string("Offline · using saved prices")
         case .unavailable:
-            return "Prices unavailable · showing amounts only"
+            return Localized.string("Prices unavailable · showing amounts only")
         }
     }
 }
@@ -250,9 +251,9 @@ struct PositionRow: View {
     /// "Bitcoin, 5 BTC, worth $417,660.00, up 0.66% today"
     private var accessibilityText: String {
         var parts = [coin.name, "\(PulseFormat.amount(position.holding.amount)) \(coin.symbol)"]
-        parts.append(position.value.map { "worth " + PulseFormat.price($0) } ?? "value unavailable")
+        parts.append(position.value.map { Localized.string("worth %@", PulseFormat.price($0)) } ?? Localized.string("value unavailable"))
         if let change = PulseAccessibility.change(position.coin?.priceChange24h) {
-            parts.append(change + " today")
+            parts.append(Localized.string("%@ today", change))
         }
         return parts.joined(separator: ", ")
     }

@@ -1,3 +1,4 @@
+import Localization
 import SwiftUI
 import UIKit
 
@@ -14,9 +15,9 @@ public enum AppearancePreference: String, CaseIterable, Identifiable, Sendable {
 
     public var title: String {
         switch self {
-        case .system: "System"
-        case .light: "Light"
-        case .dark: "Dark"
+        case .system: Localized.string("System")
+        case .light: Localized.string("Light")
+        case .dark: Localized.string("Dark")
         }
     }
 

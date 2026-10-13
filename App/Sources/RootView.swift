@@ -1,12 +1,14 @@
 import CoinDetailFeature
 import Domain
+import Localization
 import MarketsFeature
 import PortfolioFeature
 import SwiftUI
 
 struct RootView: View {
     let container: AppContainer
-    @State private var selectedTab = RootTab.markets
+    /// Scene storage survives the rebuild that happens when the language changes.
+    @SceneStorage("selectedTab") private var selectedTab = RootTab.markets
     @State private var marketsPath: [CoinIdentity] = []
 
     var body: some View {
@@ -15,20 +17,20 @@ struct RootView: View {
                 MarketsView(model: container.marketsViewModel)
                     .withCoinDestination(container)
             }
-            .tabItem { Label("Markets", systemImage: "chart.line.uptrend.xyaxis") }
+            .tabItem { Label(Localized.string("Markets"), systemImage: "chart.line.uptrend.xyaxis") }
             .tag(RootTab.markets)
 
             NavigationStack {
                 PortfolioView(model: container.portfolioViewModel)
                     .withCoinDestination(container)
             }
-            .tabItem { Label("Portfolio", systemImage: "briefcase") }
+            .tabItem { Label(Localized.string("Portfolio"), systemImage: "briefcase") }
             .tag(RootTab.portfolio)
 
             NavigationStack {
                 SettingsView()
             }
-            .tabItem { Label("Settings", systemImage: "gearshape") }
+            .tabItem { Label(Localized.string("Settings"), systemImage: "gearshape") }
             .tag(RootTab.settings)
         }
         // Load holdings at launch so "Add to portfolio" on any coin knows what's already owned.
@@ -42,7 +44,7 @@ struct RootView: View {
     }
 }
 
-enum RootTab: Hashable {
+enum RootTab: String, Hashable {
     case markets
     case portfolio
     case settings
@@ -78,7 +80,7 @@ private struct CoinDetailScreen: View {
                     Button {
                         editor = container.makeHoldingEditor(for: identity)
                     } label: {
-                        Label(isOwned ? "Edit holding" : "Add to portfolio",
+                        Label(isOwned ? Localized.string("Edit holding") : Localized.string("Add to portfolio"),
                               systemImage: isOwned ? "briefcase.fill" : "plus.circle")
                     }
                 }

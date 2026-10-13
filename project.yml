@@ -1,6 +1,7 @@
 name: Pulse
 options:
   bundleIdPrefix: com.irenapoghosyan
+  developmentLanguage: en
   deploymentTarget:
     iOS: "17.0"
   createIntermediateGroups: true
@@ -28,6 +29,8 @@ targets:
     dependencies:
       - target: PulseWidget
       - package: PulseKit
+        product: Localization
+      - package: PulseKit
         product: Domain
       - package: PulseKit
         product: DataLayer
@@ -43,6 +46,7 @@ targets:
       path: App/Info.plist
       properties:
         CFBundleDisplayName: Pulse
+        CFBundleLocalizations: [en, hy, ru]
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         UILaunchScreen:
@@ -80,6 +84,7 @@ targets:
       path: Widget/Info.plist
       properties:
         CFBundleDisplayName: Pulse
+        CFBundleLocalizations: [en, hy, ru]
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         NSExtension:
@@ -100,6 +105,7 @@ schemes:
     test:
       gatherCoverageData: true
       targets:
+        - package: PulseKit/LocalizationTests
         - package: PulseKit/DomainTests
         - package: PulseKit/NetworkingTests
         - package: PulseKit/DesignSystemTests

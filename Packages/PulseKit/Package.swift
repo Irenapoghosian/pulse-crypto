@@ -12,6 +12,7 @@ let package = Package(
     name: "PulseKit",
     platforms: [.iOS(.v17)],
     products: [
+        .library(name: "Localization", targets: ["Localization"]),
         .library(name: "Domain", targets: ["Domain"]),
         .library(name: "Networking", targets: ["Networking"]),
         .library(name: "DataLayer", targets: ["DataLayer"]),
@@ -22,23 +23,26 @@ let package = Package(
         .library(name: "WidgetFeature", targets: ["WidgetFeature"]),
     ],
     targets: [
+        // Looks up strings in the language chosen in Settings. Foundation only.
+        .target(name: "Localization"),
         // Business rules: entities, repository contracts and use cases. Foundation only.
-        .target(name: "Domain"),
+        .target(name: "Domain", dependencies: ["Localization"]),
         // Generic HTTP: knows nothing about crypto.
         .target(name: "Networking"),
         // CoinGecko, offline cache and SwiftData; implements the Domain repository contracts.
         .target(name: "DataLayer", dependencies: ["Domain", "Networking"]),
         // Colors, formatters and reusable SwiftUI components.
-        .target(name: "DesignSystem"),
-        .target(name: "MarketsFeature", dependencies: ["Domain", "DesignSystem"]),
-        .target(name: "CoinDetailFeature", dependencies: ["Domain", "DesignSystem"]),
-        .target(name: "PortfolioFeature", dependencies: ["Domain", "DesignSystem"]),
+        .target(name: "DesignSystem", dependencies: ["Localization"]),
+        .target(name: "MarketsFeature", dependencies: ["Domain", "DesignSystem", "Localization"]),
+        .target(name: "CoinDetailFeature", dependencies: ["Domain", "DesignSystem", "Localization"]),
+        .target(name: "PortfolioFeature", dependencies: ["Domain", "DesignSystem", "Localization"]),
         // Home Screen widget entries and views; the widget extension only wires it up.
         .target(name: "WidgetFeature", dependencies: ["Domain", "DesignSystem"]),
 
         // Fakes shared by the feature tests.
         .target(name: "TestSupport", dependencies: ["Domain"], path: "Tests/TestSupport"),
 
+        .testTarget(name: "LocalizationTests", dependencies: ["Localization"]),
         .testTarget(name: "DomainTests", dependencies: ["Domain"]),
         .testTarget(name: "NetworkingTests", dependencies: ["Networking"]),
         .testTarget(name: "DesignSystemTests", dependencies: ["DesignSystem"]),

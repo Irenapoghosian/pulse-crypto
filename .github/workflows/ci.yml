@@ -19,6 +19,14 @@ jobs:
       - name: Lint
         run: swiftlint lint --strict --reporter github-actions-logging
 
+  localizations:
+    name: Translations
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Every string has Armenian and Russian
+        run: python3 scripts/check_localizations.py
+
   test:
     name: Test modules & build app
     runs-on: macos-15

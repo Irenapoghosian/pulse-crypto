@@ -1,4 +1,5 @@
 import Foundation
+import Localization
 
 /// Turns holdings + prices into everything the portfolio screen shows. Pure and synchronous.
 public enum PortfolioCalculator {
@@ -50,7 +51,7 @@ public enum PortfolioCalculator {
         }
         let rest = nonZero.dropFirst(maxSlices).reduce(0) { $0 + $1.1 }
         guard rest > 0 else { return top }
-        return top + [AllocationSlice(id: "other", label: "Other", value: rest, share: rest / total)]
+        return top + [AllocationSlice(id: "other", label: Localized.string("Other"), value: rest, share: rest / total)]
     }
 }
 

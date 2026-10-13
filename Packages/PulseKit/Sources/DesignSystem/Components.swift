@@ -1,3 +1,4 @@
+import Localization
 import SwiftUI
 import UIKit
 
@@ -20,7 +21,7 @@ public struct ChangeBadge: View {
     }
 
     private var accessibilityText: String {
-        PulseAccessibility.change(change) ?? "No change data"
+        PulseAccessibility.change(change) ?? Localized.string("No change data")
     }
 }
 
@@ -110,7 +111,7 @@ public struct ErrorStateView: View {
     let message: String
     let retry: () -> Void
 
-    public init(title: String = "Couldn't load prices", message: String, retry: @escaping () -> Void) {
+    public init(title: String = Localized.string("Couldn't load prices"), message: String, retry: @escaping () -> Void) {
         self.title = title
         self.message = message
         self.retry = retry
@@ -151,10 +152,10 @@ public struct NoticeBanner: View {
 
 /// Label above a value, used in stat grids.
 public struct StatTile: View {
-    let title: String
+    let title: LocalizedStringKey
     let value: String
 
-    public init(_ title: String, value: String) {
+    public init(_ title: LocalizedStringKey, value: String) {
         self.title = title
         self.value = value
     }

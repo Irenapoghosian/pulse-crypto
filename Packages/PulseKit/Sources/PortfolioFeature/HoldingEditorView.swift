@@ -1,5 +1,6 @@
 import DesignSystem
 import Domain
+import Localization
 import SwiftUI
 
 /// Sheet for adding a coin or changing an amount. Embed it in a `NavigationStack`.
@@ -28,14 +29,14 @@ public struct HoldingEditorView: View {
                 }
             }
         }
-        .navigationTitle(model.mode == .add ? "Add coin" : "Edit holding")
+        .navigationTitle(model.mode == .add ? Localized.string("Add coin") : Localized.string("Edit holding"))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
-                Button("Cancel") { dismiss() }
+                Button(Localized.string("Cancel")) { dismiss() }
             }
             ToolbarItem(placement: .confirmationAction) {
-                Button("Save") {
+                Button(Localized.string("Save")) {
                     Task {
                         if await model.save() { dismiss() }
                     }
@@ -105,7 +106,7 @@ public struct HoldingEditorView: View {
             }
 
             if model.suggestions.isEmpty {
-                Text(model.query.isEmpty ? "Loading coins…" : "No matches")
+                Text(model.query.isEmpty ? LocalizedStringKey("Loading coins…") : LocalizedStringKey("No matches"))
                     .foregroundStyle(.secondary)
             }
 

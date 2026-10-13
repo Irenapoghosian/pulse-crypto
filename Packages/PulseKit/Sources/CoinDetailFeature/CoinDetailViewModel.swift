@@ -1,5 +1,6 @@
 import Domain
 import Foundation
+import Localization
 import Observation
 
 @MainActor
@@ -85,7 +86,7 @@ public final class CoinDetailViewModel {
             cache[range] = points
             // The user may have switched ranges while this was loading.
             guard range == self.range else { return }
-            chart = points.isEmpty ? .failed("No price history for this period.") : .loaded(points)
+            chart = points.isEmpty ? .failed(Localized.string("No price history for this period.")) : .loaded(points)
         } catch is CancellationError {
             return
         } catch {
@@ -96,9 +97,9 @@ public final class CoinDetailViewModel {
 
     static func message(for error: Error) -> String {
         switch error as? MarketDataError {
-        case .offline?: "You're offline."
-        case .rateLimited?: "Too many requests. Try again in a minute."
-        default: "Couldn't load the chart."
+        case .offline?: Localized.string("You're offline.")
+        case .rateLimited?: Localized.string("Too many requests. Try again in a minute.")
+        default: Localized.string("Couldn't load the chart.")
         }
     }
 }

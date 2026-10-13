@@ -58,6 +58,7 @@ https://github.com/user-attachments/assets/12d8255e-3cc3-4933-970e-12e8efe3f436
 - **Locale-aware input** — amounts like `0,5` (Armenian, Russian, German) and `0.5` (English) are both understood.
 - **Home Screen widgets** — a small widget for one coin and a medium watchlist of three, both configurable from the widget's edit menu. Tapping a coin opens it in the app.
 - **Accessible** — VoiceOver reads every coin as one sentence ("Bitcoin, BTC, rank 1, $83,532.00, up 0.66% today, 7-day trend down"), price charts can be explored as Audio Graphs, rows re-flow at the largest text sizes, and the whole app supports Dark Mode.
+- **Three languages** — English, Armenian and Russian (String Catalogs), switchable live from the Settings tab without restarting — titles, tabs, menus and messages included. Prices and dates keep the device's regional formats.
 - **Appearance setting** — choose System, Light or Dark in the Settings tab; the choice is saved and applied to every screen, sheet and alert.
 - **Graceful degradation** — if live prices fail, the portfolio falls back to saved prices, and then to amounts only, with a clear notice.
 
@@ -87,13 +88,14 @@ flowchart TD
 
 | Module | Responsibility | Depends on |
 |---|---|---|
-| `Domain` | Entities (`Coin`, `Holding`, `PortfolioSummary`…), the `MarketRepository` and `HoldingsRepository` contracts, and pure business rules (`MarketRules`, `PortfolioCalculator`, `AmountParser`). Foundation only. | — |
+| `Localization` | Looks up strings in the language picked in Settings, so the app can switch language without a restart. Foundation only. | — |
+| `Domain` | Entities (`Coin`, `Holding`, `PortfolioSummary`…), the `MarketRepository` and `HoldingsRepository` contracts, and pure business rules (`MarketRules`, `PortfolioCalculator`, `AmountParser`). Foundation only. | Localization |
 | `Networking` | Generic `APIClient` + `HTTPClient` protocol; maps failures to `NetworkError`. Knows nothing about crypto. | — |
 | `DataLayer` | CoinGecko DTOs and mappers, `DefaultMarketRepository`, file-based offline cache, SwiftData holdings store. Translates transport errors into domain errors; SwiftData never leaks out of this module. | Domain, Networking |
-| `DesignSystem` | Colors, number formatting, reusable views (`Sparkline`, `ChangeBadge`, `CoinIcon`…). | — |
-| `MarketsFeature` | Market list, search and sorting (`MarketsViewModel` + views). | Domain, DesignSystem |
-| `CoinDetailFeature` | Price chart and stats (`CoinDetailViewModel` + views). | Domain, DesignSystem |
-| `PortfolioFeature` | Balance, allocation chart, holdings list and the add/edit sheet. | Domain, DesignSystem |
+| `DesignSystem` | Colors, number formatting, reusable views (`Sparkline`, `ChangeBadge`, `CoinIcon`…). | Localization |
+| `MarketsFeature` | Market list, search and sorting (`MarketsViewModel` + views). | Domain, DesignSystem, Localization |
+| `CoinDetailFeature` | Price chart and stats (`CoinDetailViewModel` + views). | Domain, DesignSystem, Localization |
+| `PortfolioFeature` | Balance, allocation chart, holdings list and the add/edit sheet. | Domain, DesignSystem, Localization |
 | `WidgetFeature` | Widget entries (`MarketEntryLoader`) and the small and medium widget views. | Domain, DesignSystem |
 
 ### Key decisions
@@ -118,7 +120,7 @@ Each module has its own test target, runnable without a simulator app:
 
 In Xcode, **⌘U** on the `Pulse` scheme runs every module's tests with code coverage.
 
-CI runs SwiftLint, every module's tests and an app build on each push. The job summary lists coverage per module; the badge shows logic coverage — SwiftUI view files are left out because they're checked with previews, not unit tests (`scripts/coverage.py`).
+CI runs SwiftLint, a translation check (every string has Armenian and Russian, with the same placeholders), every module's tests and an app build on each push. The job summary lists coverage per module; the badge shows logic coverage — SwiftUI view files are left out because they're checked with previews, not unit tests (`scripts/coverage.py`).
 
 ## Getting started
 
@@ -148,6 +150,8 @@ Market data provided by [CoinGecko](https://www.coingecko.com).
 - [x] Coin detail with interactive charts
 - [x] Portfolio with SwiftData persistence
 - [x] Home Screen widgets
+- [x] Dark Mode, accessibility and an appearance setting
+- [x] Localization: English, Armenian, Russian
 
 ## License
 

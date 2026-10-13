@@ -1,5 +1,6 @@
 import DesignSystem
 import Domain
+import Localization
 import SwiftUI
 
 /// The market list. Rows push a `CoinIdentity`; the app decides what screen that opens,
@@ -13,8 +14,8 @@ public struct MarketsView: View {
 
     public var body: some View {
         content
-            .navigationTitle("Markets")
-            .searchable(text: $model.query, prompt: "Search coins")
+            .navigationTitle(Localized.string("Markets"))
+            .searchable(text: $model.query, prompt: Localized.string("Search coins"))
             .toolbar { sortMenu }
             .task { await model.load() }
             .task(id: model.query) {
@@ -45,7 +46,7 @@ public struct MarketsView: View {
             if model.isShowingCachedData, let date = model.snapshot?.updatedAt {
                 NoticeBanner(
                     systemImage: "icloud.slash",
-                    text: "Offline · prices from \(date.formatted(date: .omitted, time: .shortened))"
+                    text: Localized.string("Offline · prices from %@", date.formatted(date: .omitted, time: .shortened))
                 )
                 .listRowSeparator(.hidden)
                 .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
@@ -87,13 +88,13 @@ public struct MarketsView: View {
     private var sortMenu: some ToolbarContent {
         ToolbarItem(placement: .topBarTrailing) {
             Menu {
-                Picker("Sort by", selection: $model.sort) {
+                Picker(Localized.string("Sort by"), selection: $model.sort) {
                     ForEach(MarketSort.allCases) { sort in
                         Text(sort.title).tag(sort)
                     }
                 }
             } label: {
-                Label("Sort", systemImage: "arrow.up.arrow.down")
+                Label(Localized.string("Sort"), systemImage: "arrow.up.arrow.down")
             }
             .accessibilityValue(model.sort.title)
         }

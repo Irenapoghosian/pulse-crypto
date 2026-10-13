@@ -1,5 +1,6 @@
 import Domain
 import Foundation
+import Localization
 import Observation
 
 @MainActor
@@ -97,11 +98,11 @@ public final class MarketsViewModel {
     static func message(for error: Error) -> String {
         switch error as? MarketDataError {
         case .offline?:
-            "You're offline. Connect to the internet to see live prices."
+            Localized.string("You're offline. Connect to the internet to see live prices.")
         case .rateLimited?:
-            "Too many requests right now. Please wait a minute and try again."
+            Localized.string("Too many requests right now. Please wait a minute and try again.")
         default:
-            "The price service isn't responding. Please try again."
+            Localized.string("The price service isn't responding. Please try again.")
         }
     }
 }

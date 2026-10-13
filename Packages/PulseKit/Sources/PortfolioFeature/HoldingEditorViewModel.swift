@@ -1,5 +1,6 @@
 import Domain
 import Foundation
+import Localization
 import Observation
 
 /// Adds a coin to the portfolio or changes the amount of an existing holding.
@@ -124,7 +125,7 @@ public final class HoldingEditorViewModel: Identifiable {
             await onSaved()
             return true
         } catch {
-            errorMessage = "Couldn't save. Please try again."
+            errorMessage = Localized.string("Couldn't save. Please try again.")
             return false
         }
     }

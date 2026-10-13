@@ -1,4 +1,5 @@
 import Foundation
+import Localization
 
 /// How the market list can be ordered.
 public enum MarketSort: String, CaseIterable, Identifiable, Sendable {
@@ -8,10 +9,10 @@ public enum MarketSort: String, CaseIterable, Identifiable, Sendable {
 
     public var title: String {
         switch self {
-        case .rank: "Market cap"
-        case .gainers: "Top gainers"
-        case .losers: "Top losers"
-        case .volume: "Volume"
+        case .rank: Localized.string("Market cap")
+        case .gainers: Localized.string("Top gainers")
+        case .losers: Localized.string("Top losers")
+        case .volume: Localized.string("Volume")
         }
     }
 }

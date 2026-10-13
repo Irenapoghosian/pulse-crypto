@@ -1,5 +1,6 @@
 import Domain
 import Foundation
+import Localization
 import Observation
 
 @MainActor
@@ -52,7 +53,7 @@ public final class PortfolioViewModel {
         } catch is CancellationError {
             return
         } catch {
-            state = .failed("Your portfolio couldn't be opened. Please try again.")
+            state = .failed(Localized.string("Your portfolio couldn't be opened. Please try again."))
         }
     }
 
