@@ -70,3 +70,17 @@ final class AccessibilityTextTests: XCTestCase {
         XCTAssertEqual(text, "Ethena, ENA, price unavailable")
     }
 }
+
+final class LocalizedFormatTests: XCTestCase {
+
+    func testCompactCurrencyPutsTheSuffixWhereTheLanguageExpectsIt() {
+        // A hand-built "$" + "T" used to come out as "1,68 $T" in Russian.
+        let russian = PulseFormat.compactCurrency(1_680_000_000_000, locale: Locale(identifier: "ru_RU"))
+        XCTAssertFalse(russian.contains("$T"), russian)
+        XCTAssertTrue(russian.contains("$"), russian)
+    }
+
+    func testSmallAmountsStayFullPrices() {
+        XCTAssertEqual(PulseFormat.compactCurrency(950, locale: Locale(identifier: "en_US")), "$950.00")
+    }
+}

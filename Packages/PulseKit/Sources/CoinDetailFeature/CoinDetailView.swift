@@ -60,7 +60,8 @@ public struct CoinDetailView: View {
 
     private var subtitle: String {
         if let point = model.selectedPoint {
-            return point.date.formatted(date: .abbreviated, time: model.range == .day ? .shortened : .omitted)
+            let style = Date.FormatStyle(date: .abbreviated, time: model.range == .day ? .shortened : .omitted, locale: Localized.locale)
+            return point.date.formatted(style)
         }
         return model.points.isEmpty ? Localized.string("24h") : Localized.string("Past %@", model.range.title)
     }
@@ -212,7 +213,7 @@ extension PriceChart: AXChartDescriptorRepresentable {
             range: (times.min() ?? now)...(times.max() ?? now),
             gridlinePositions: []
         ) { value in
-            Date(timeIntervalSince1970: value).formatted(date: .abbreviated, time: .shortened)
+            Date(timeIntervalSince1970: value).formatted(Date.FormatStyle(date: .abbreviated, time: .shortened, locale: Localized.locale))
         }
 
         let yAxis = AXNumericDataAxisDescriptor(

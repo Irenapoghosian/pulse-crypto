@@ -6,7 +6,7 @@ import Localization
 public enum PulseAccessibility {
 
     /// "up 2.45%", "down 1.20%" or "unchanged".
-    public static func change(_ percent: Double?, locale: Locale = .current) -> String? {
+    public static func change(_ percent: Double?, locale: Locale = Localized.locale) -> String? {
         guard let percent else { return nil }
         guard percent != 0 else { return Localized.string("unchanged") }
         let magnitude = (abs(percent) / 100).formatted(.percent.locale(locale).precision(.fractionLength(2)))
@@ -29,7 +29,7 @@ public enum PulseAccessibility {
         change24h: Double?,
         rank: Int? = nil,
         sparkline: [Double] = [],
-        locale: Locale = .current
+        locale: Locale = Localized.locale
     ) -> String {
         var parts = [name, symbol]
         if let rank { parts.append(Localized.string("rank %lld", rank)) }

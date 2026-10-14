@@ -42,6 +42,18 @@
 |:--:|:--:|:--:|:--:|
 | <img src="docs/screenshots/widget.png" width="200"> | <img src="docs/screenshots/dark-markets.png" width="200"> | <img src="docs/screenshots/dark-detail.png" width="200"> | <img src="docs/screenshots/settings.png" width="200"> |
 
+## Languages
+
+<p align="center">
+  <img src="docs/screenshots/languages.png" alt="Pulse 1.2 in Armenian and Russian: markets, portfolio, a Bitcoin chart and Settings">
+</p>
+
+| Հայերեն | Հայերեն | Русский | Русский |
+|:--:|:--:|:--:|:--:|
+| <img src="docs/screenshots/lang-hy-markets.png" width="200"> | <img src="docs/screenshots/lang-hy-portfolio.png" width="200"> | <img src="docs/screenshots/lang-ru-detail.png" width="200"> | <img src="docs/screenshots/lang-ru-settings.png" width="200"> |
+
+Pick the language in **Settings**; everything switches at once, including titles, tabs, menus, messages, VoiceOver and number formats ("1,68 трлн $").
+
 ## Demo
 
 https://github.com/user-attachments/assets/12d8255e-3cc3-4933-970e-12e8efe3f436

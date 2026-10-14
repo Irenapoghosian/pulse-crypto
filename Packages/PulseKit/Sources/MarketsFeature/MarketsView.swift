@@ -44,9 +44,10 @@ public struct MarketsView: View {
     private var list: some View {
         List {
             if model.isShowingCachedData, let date = model.snapshot?.updatedAt {
+                let time = date.formatted(Date.FormatStyle(date: .omitted, time: .shortened, locale: Localized.locale))
                 NoticeBanner(
                     systemImage: "icloud.slash",
-                    text: Localized.string("Offline · prices from %@", date.formatted(date: .omitted, time: .shortened))
+                    text: Localized.string("Offline · prices from %@", time)
                 )
                 .listRowSeparator(.hidden)
                 .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
